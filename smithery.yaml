@@ -1,4 +1,4 @@
-name: weather-agent
+name: test-agent
 version: 1.0
 server:
   command: python server.py

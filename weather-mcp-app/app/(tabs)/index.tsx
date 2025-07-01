@@ -1,18 +1,17 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text, TextInput, View, Button, ActivityIndicator } from 'react-native';
+import React, { useState } from "react";
+import { StyleSheet, Text, TextInput, View, Button, ActivityIndicator } from "react-native";
 
 type WeatherData = {
-  city: string;
-  temperature: number;
-  description: string;
-  feels_like: number;
-} | {
-  error: string;
-} | null;
+  city?: string;
+  temperature?: number;
+  feels_like?: number;
+  description?: string;
+  error?: string;
+};
 
 export default function App() {
-  const [city, setCity] = useState('');
-  const [weather, setWeather] = useState<WeatherData>(null);
+  const [city, setCity] = useState<string>("");
+  const [weather, setWeather] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState(false);
 
   const getWeather = async () => {
@@ -20,12 +19,17 @@ export default function App() {
 
     setLoading(true);
     try {
-      const response = await fetch(`http://192.168.1.56:5000/weather?city=${city}`);
-      const data = await response.json();
+      const response = await fetch("http://192.168.1.56:5000/agent/weather", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ city: city }),
+      });
+
+      const data: WeatherData = await response.json();
       setWeather(data);
     } catch (error) {
       console.error(error);
-      setWeather({ error: 'Sunucuya bağlanılamadı.' });
+      setWeather({ error: "Sunucuya bağlanılamadı." });
     }
     setLoading(false);
   };
@@ -45,7 +49,7 @@ export default function App() {
 
       {weather && (
         <View style={styles.result}>
-          {'error' in weather ? (
+          {weather.error ? (
             <Text style={styles.error}>{weather.error}</Text>
           ) : (
             <>
@@ -62,26 +66,15 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: 24,
-  },
-  title: {
-    fontSize: 18,
-    marginBottom: 12,
-  },
+  container: { flex: 1, justifyContent: "center", padding: 24 },
+  title: { fontSize: 18, marginBottom: 12 },
   input: {
     height: 40,
-    borderColor: '#999',
+    borderColor: "#999",
     borderWidth: 1,
     marginBottom: 12,
     paddingHorizontal: 8,
   },
-  result: {
-    marginTop: 20,
-  },
-  error: {
-    color: 'red',
-  },
+  result: { marginTop: 20 },
+  error: { color: "red" },
 });
